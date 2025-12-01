@@ -1,0 +1,46 @@
+{
+  "plan_id": "repair_plan_1764555771",
+  "repository_path": "C:\\Users\\AD60060\\OneDrive - Lumen\\Desktop\\Self healing agent\\sample_repo",
+  "total_issues": 1,
+  "estimated_duration": "5 minutes",
+  "success_probability": 0.75,
+  "created_at": "2025-11-30T21:22:51.408259",
+  "critical_path": [
+    "main.py",
+    "performance_bugs.py",
+    "comprehensive_test.py",
+    "utils.py",
+    "buggy_module.py",
+    "error_test.py",
+    "complex_errors.py",
+    "critical_errors.py",
+    "syntax_test.py",
+    "fresh_bugs.py"
+  ],
+  "dependency_order": [
+    "main.py",
+    "buggy_module.py",
+    "complex_errors.py",
+    "comprehensive_test.py",
+    "critical_errors.py",
+    "error_test.py",
+    "fresh_bugs.py",
+    "performance_bugs.py",
+    "syntax_test.py",
+    "utils.py"
+  ],
+  "tasks": [
+    {
+      "task_id": "task_2_runtime_errors",
+      "target_files": [
+        "unknown"
+      ],
+      "strategy": "Resolve missing imports and undefined references using repository context",
+      "priority": 2,
+      "estimated_complexity": "Medium",
+      "prerequisites": [],
+      "expected_outcome": "All files execute without runtime errors",
+      "issues_count": 1
+    }
+  ]
+}

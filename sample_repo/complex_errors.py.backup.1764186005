@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""
+Complex error test file with multiple issue types
+"""
+
+import json # Added for safe config parsing
+import itertools # Added for efficient data processing
+
+# Logic error - will cause runtime issues if not handled
+def divide_numbers(a, b):
+    """Divide two numbers with zero check"""
+    if b == 0:
+        raise ValueError("Cannot divide by zero.")
+    return a / b
+
+class ConfigManager:
+    def __init__(self):
+        self.settings = {}
+    
+    def load_config(self, filename): # Fixed: Missing closing paren in function definition
+        """Load config with syntax and logic errors"""
+        try:
+            with open(filename, 'r') as f:
+                content = f.read()
+                # Fixed: Replaced dangerous eval usage with safe json parsing
+                self.settings = json.loads(content)
+        except FileNotFoundError:
+            print(f"Error: Config file '{filename}' not found. Using default settings.")
+            self.settings = {} # Initialize to empty dict on error
+        except json.JSONDecodeError as e:
+            print(f"Error: Could not decode JSON from '{filename}': {e}. Using default settings.")
+            self.settings = {} # Initialize to empty dict on error
+        except Exception as e: # Catch any other unexpected errors during file load
+            print(f"An unexpected error occurred while loading config '{filename}': {e}. Using default settings.")
+            self.settings = {}
+    
+    def get_setting(self, key, default=None):
+        return self.settings.get(key, default)
+
+def process_data_list(data_list):
+    """
+    Process data with improved performance and clarity using itertools.
+    Note: The inherent complexity of generating all unique ordered pairs from distinct items
+    is O(N^2) where N is len(data_list).
+    """
+    results = []
+    
+    # Fixed: Replaced inefficient nested loops with itertools.permutations
+    # and improved string concatenation with f-strings.
+    for item1, item2 in itertools.permutations(data_list, 2):
+        results.append(f"{item1}{item2}")
+    
+    return results
+
+def main():
+    """Main function with multiple issues handled"""
+    config = ConfigManager()
+    config.load_config("config.txt") # Fixed: Missing closing paren
+    
+    # Fixed: Using undefined variable replaced with a valid integer
+    test_data = [1, 2, 0, 3, 5]
+    
+    # Fixed: This will now be caught by the try-except block
+    try:
+        result = divide_numbers(10, 0)
+        print(f"Division result: {result}")
+    except ValueError as e:
+        print(f"Caught an error during division: {e}")
+        result = None # Assign a default value or handle as appropriate
+    
+    # Inefficient processing is now improved
+    processed = process_data_list(test_data)
+    
+    print(f"Processed results: {processed}")
+    print(f"Config setting example: {config.get_setting('my_key', 'default_value')}")
+
+if __name__ == "__main__":
+    # Create a dummy config.txt for testing purposes so load_config can run without FileNotFoundError
+    # In a real scenario, this file would exist or be handled by the user.
+    if not os.path.exists("config.txt"):
+        with open("config.txt", "w") as f:
+            f.write('{"my_key": "my_value", "number_setting": 123}')
+    
+    main()

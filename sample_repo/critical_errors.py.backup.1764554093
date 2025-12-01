@@ -1,0 +1,70 @@
+"""
+Critical error testing module with Windows compatibility issues.
+"""
+
+import json
+import datetime
+
+# CRITICAL BUG 1: Import error - module doesn't exist
+from non_existent_module import MissingClass
+
+# CRITICAL BUG 2: Syntax error in function definition  
+def broken_function(param1, param2:
+    """Function with syntax error"""
+    return param1 + param2
+
+# CRITICAL BUG 3: Class with undefined methods
+class ErrorProneClass:
+    def __init__(self, data):
+        self.data = data
+        # CRITICAL BUG: Calling undefined method
+        self.processed = self.undefined_method(data)
+    
+    def process_data(self):
+        """Process data with type errors"""
+        # CRITICAL BUG 4: TypeError - comparing incompatible types
+        if self.data > "string":  # Can't compare list/dict with string
+            return self.data * 2
+        
+        # CRITICAL BUG 5: AttributeError - wrong method
+        return self.data.non_existent_method()
+
+# CRITICAL BUG 6: Function with encoding issues
+def display_results(results):
+    """Display results with Windows console problems"""
+    print("🎯 Results Summary:")
+    print("✅ Successful items:", len(results.get('success', [])))
+    print("❌ Failed items:", len(results.get('errors', [])))
+    print("🔍 Analysis complete")
+    
+    # CRITICAL BUG 7: Index error
+    first_item = results['success'][0]  # Will fail if empty list
+    return first_item
+
+# CRITICAL BUG 8: Missing required parameter
+def calculate_metrics():  # Should take parameters but doesn't
+    """Calculate metrics without required data"""
+    # CRITICAL BUG 9: NameError - variable not defined
+    total = sum(undefined_data_list)
+    average = total / len(undefined_data_list)
+    
+    return {
+        'total': total,
+        'average': average,
+        'timestamp': datetime.datetime.now()
+    }
+
+# CRITICAL BUG 10: Main execution with multiple errors
+if __name__ == "__main__":
+    # CRITICAL BUG: Multiple undefined references
+    processor = ErrorProneClass([1, 2, 3])
+    results = processor.process_data()
+    
+    metrics = calculate_metrics(results)  # Wrong number of arguments
+    display_results(metrics)
+    
+    # CRITICAL BUG: File operation without proper handling
+    with open("nonexistent_file.json") as f:  # File doesn't exist
+        data = json.load(f)
+    
+    print("Process completed successfully!")  # Will never reach here

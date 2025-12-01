@@ -1,0 +1,276 @@
+# Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: ecommerce
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      # MISSING EXTERNAL LABELS
+      
+    rule_files:
+      - "alert_rules.yml"
+      # MISSING RECORDING RULES
+      
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+              # HARDCODED TARGET
+              
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+          
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          # MISSING NAMESPACE FILTERING
+          
+      - job_name: 'user-service'
+        static_configs:
+          - targets: ['user-service:3001']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+        # MISSING AUTHENTICATION
+        
+      - job_name: 'product-service'
+        static_configs:
+          - targets: ['product-service:3002']
+        metrics_path: '/metrics'
+        scrape_interval: 30s
+        
+      # MISSING ORDER-SERVICE CONFIGURATION
+      
+  alert_rules.yml: |
+    groups:
+    - name: ecommerce_alerts
+      rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m  # TOO SHORT
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+          
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High latency detected"
+          # MISSING RUNBOOK URL
+          
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod {{ $labels.pod }} is crash looping"
+          
+      # MISSING MEMORY AND CPU ALERTS
+      
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: ecommerce
+  labels:
+    app: prometheus
+spec:
+  replicas: 1  # SINGLE POINT OF FAILURE
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      # MISSING SERVICE ACCOUNT
+      
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.35.0  # POTENTIALLY OUTDATED
+        ports:
+        - containerPort: 9090
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus/'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--storage.tsdb.retention.time=15d'
+          - '--web.enable-lifecycle'
+          # MISSING SECURITY FLAGS
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
+        - name: prometheus-storage-volume
+          mountPath: /prometheus/
+          
+        # MISSING RESOURCE LIMITS
+        # resources:
+        #   limits:
+        #     cpu: 500m
+        #     memory: 1Gi
+        #   requests:
+        #     cpu: 200m
+        #     memory: 512Mi
+            
+        # MISSING HEALTH CHECKS
+        # livenessProbe:
+        #   httpGet:
+        #     path: /-/healthy
+        #     port: 9090
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /-/ready
+        #     port: 9090
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+          
+      volumes:
+      - name: prometheus-config-volume
+        configMap:
+          defaultMode: 420
+          name: prometheus-config
+      - name: prometheus-storage-volume
+        # USING EMPTY DIR - DATA LOSS RISK
+        emptyDir: {}
+        # Should use:
+        # persistentVolumeClaim:
+        #   claimName: prometheus-storage
+          
+      # MISSING NODE SELECTOR AND AFFINITY
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: ecommerce
+  labels:
+    app: prometheus
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: web
+  selector:
+    app: prometheus
+    
+---
+# GRAFANA CONFIGURATION - INSECURE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: ecommerce
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+    root_url = http://grafana.ecommerce.local
+    
+    [database]
+    type = sqlite3
+    path = grafana.db
+    # Should use external database for production
+    
+    [security]
+    admin_user = admin
+    admin_password = admin123  # HARDCODED PASSWORD
+    secret_key = SW2YcwTIb9zpOOhoPsMm  # WEAK SECRET
+    
+    [users]
+    allow_sign_up = true  # SECURITY RISK
+    allow_org_create = true  # SECURITY RISK
+    
+    [auth.anonymous]
+    enabled = true  # MAJOR SECURITY RISK
+    org_name = Main Org.
+    org_role = Viewer
+    
+    # MISSING AUTHENTICATION CONFIGURATION
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:8.5.0  # OUTDATED VERSION
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin123"  # HARDCODED IN PLAIN TEXT
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+          
+        # MISSING RESOURCE LIMITS AND HEALTH CHECKS
+        
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-config
+      - name: grafana-storage
+        emptyDir: {}  # DATA LOSS RISK
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: ecommerce
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: grafana

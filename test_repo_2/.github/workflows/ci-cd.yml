@@ -1,0 +1,255 @@
+name: CI/CD Pipeline
+
+# MISSING PROPER TRIGGERS
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  # MISSING SCHEDULE FOR SECURITY SCANS
+  
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ecommerce
+  # HARDCODED CREDENTIALS - SECURITY RISK
+  DOCKER_USERNAME: company_user
+  DOCKER_PASSWORD: docker_password_123
+  KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # MISSING MATRIX STRATEGY FOR MULTIPLE NODE VERSIONS
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres  # WEAK PASSWORD
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      mongodb:
+        image: mongo:4.4
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: password  # WEAK PASSWORD
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:6
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v2  # OUTDATED VERSION
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v2  # OUTDATED VERSION
+      with:
+        node-version: '16'
+        # MISSING CACHE CONFIGURATION
+        
+    - name: Setup Python
+      uses: actions/setup-python@v2  # OUTDATED VERSION
+      with:
+        python-version: '3.9'
+        # MISSING CACHE CONFIGURATION
+        
+    - name: Install Node.js dependencies
+      run: |
+        cd backend
+        npm install
+        # MISSING --frozen-lockfile FLAG
+        
+    - name: Install Python dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        # MISSING VIRTUAL ENVIRONMENT
+        
+    - name: Run Python tests
+      run: |
+        cd backend
+        python -m pytest tests/
+        # MISSING COVERAGE REPORTING
+        
+    - name: Run Node.js tests
+      run: |
+        cd backend
+        npm test
+        # MISSING COVERAGE REPORTING
+        
+    - name: Lint Python code
+      run: |
+        cd backend
+        pylint *.py || true  # IGNORING LINT FAILURES
+        
+    - name: Lint JavaScript code
+      run: |
+        cd backend
+        npx eslint *.js || true  # IGNORING LINT FAILURES
+        
+    # MISSING SECURITY SCANNING
+    # - name: Security scan
+    #   run: |
+    #     npm audit --audit-level high
+    #     pip-audit
+    
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    # MISSING MATRIX FOR MULTIPLE SERVICES
+    
+    steps:
+    - uses: actions/checkout@v2  # OUTDATED VERSION
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1  # OUTDATED VERSION
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1  # OUTDATED VERSION
+      with:
+        username: ${{ env.DOCKER_USERNAME }}  # USING ENV INSTEAD OF SECRETS
+        password: ${{ env.DOCKER_PASSWORD }}  # USING ENV INSTEAD OF SECRETS
+        
+    - name: Build and push user-service
+      uses: docker/build-push-action@v2  # OUTDATED VERSION
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile.user
+        push: true
+        tags: ${{ env.REGISTRY }}/user-service:${{ github.sha }}
+        # MISSING LATEST TAG MANAGEMENT
+        # MISSING BUILD ARGS AND LABELS
+        
+    - name: Build and push product-service
+      uses: docker/build-push-action@v2  # OUTDATED VERSION
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile.product
+        push: true
+        tags: ${{ env.REGISTRY }}/product-service:${{ github.sha }}
+        
+    # MISSING ORDER-SERVICE BUILD
+    
+  security:
+    runs-on: ubuntu-latest
+    # MISSING DEPENDENCY ON OTHER JOBS
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    # COMMENTED OUT SECURITY SCANS - MAJOR ISSUE
+    # - name: Run Trivy vulnerability scanner
+    #   uses: aquasecurity/trivy-action@master
+    #   with:
+    #     image-ref: 'docker.io/user-service:${{ github.sha }}'
+    #     format: 'sarif'
+    #     output: 'trivy-results.sarif'
+        
+    # - name: Upload Trivy scan results to GitHub Security tab
+    #   uses: github/codeql-action/upload-sarif@v1
+    #   with:
+    #     sarif_file: 'trivy-results.sarif'
+        
+    - name: Placeholder security step
+      run: echo "Security scanning disabled"  # MAJOR SECURITY ISSUE
+      
+  deploy-staging:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment: staging  # MISSING ENVIRONMENT PROTECTION
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Configure kubectl
+      run: |
+        echo "$KUBE_CONFIG_DATA" | base64 -d > ~/.kube/config
+        # MISSING KUBECONFIG VALIDATION
+        
+    - name: Deploy to staging
+      run: |
+        # UPDATE IMAGE TAGS - HARDCODED APPROACH
+        sed -i 's|user-service:latest|user-service:${{ github.sha }}|g' k8s/deployment.yaml
+        sed -i 's|product-service:latest|product-service:${{ github.sha }}|g' k8s/deployment.yaml
+        
+        kubectl apply -f k8s/namespace.yaml
+        kubectl apply -f k8s/ -n ecommerce-staging
+        
+        # MISSING DEPLOYMENT VERIFICATION
+        
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/user-service -n ecommerce-staging --timeout=300s
+        kubectl rollout status deployment/product-service -n ecommerce-staging --timeout=300s
+        # MISSING READINESS CHECKS
+        
+    - name: Run smoke tests
+      run: |
+        # PLACEHOLDER - NO ACTUAL TESTS
+        echo "Running smoke tests..."
+        curl -f http://staging.ecommerce.local/api/health || exit 1
+        
+  deploy-production:
+    needs: [test, build, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production  # MISSING MANUAL APPROVAL
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Configure kubectl
+      run: |
+        echo "$KUBE_CONFIG_DATA" | base64 -d > ~/.kube/config
+        
+    # MISSING BACKUP STEP
+    
+    - name: Deploy to production
+      run: |
+        # DIRECT PRODUCTION DEPLOYMENT - RISKY
+        sed -i 's|user-service:latest|user-service:${{ github.sha }}|g' k8s/deployment.yaml
+        sed -i 's|product-service:latest|product-service:${{ github.sha }}|g' k8s/deployment.yaml
+        
+        kubectl apply -f k8s/ -n ecommerce
+        
+    - name: Verify deployment
+      run: |
+        kubectl rollout status deployment/user-service -n ecommerce --timeout=600s
+        kubectl rollout status deployment/product-service -n ecommerce --timeout=600s
+        
+        # BASIC HEALTH CHECK - INSUFFICIENT
+        curl -f https://api.ecommerce.com/api/health || exit 1
+        
+    # MISSING POST-DEPLOYMENT STEPS:
+    # - Database migrations
+    # - Cache warming
+    # - Monitoring alerts
+    # - Rollback mechanism
+    
+    - name: Notify team
+      if: always()
+      run: |
+        # PLACEHOLDER NOTIFICATION
+        echo "Deployment completed for commit ${{ github.sha }}"
+        # Should integrate with Slack/Teams/email
+        
+# MISSING JOBS:
+# - performance-testing
+# - integration-testing
+# - database-migration
+# - cleanup

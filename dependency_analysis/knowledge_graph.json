@@ -1,0 +1,434 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created_at": null,
+    "updated_at": "1764557458.3140347",
+    "node_count": 22,
+    "edge_count": 9
+  },
+  "nodes": [
+    {
+      "id": "file:docker-compose.yml",
+      "type": "file",
+      "name": "docker-compose.yml",
+      "attributes": {
+        "language": "kubernetes",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "docker-compose.yml",
+      "line_number": null
+    },
+    {
+      "id": "file:README.md",
+      "type": "file",
+      "name": "README.md",
+      "attributes": {
+        "language": "markdown",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "README.md",
+      "line_number": null
+    },
+    {
+      "id": "file:requirements.txt",
+      "type": "file",
+      "name": "requirements.txt",
+      "attributes": {
+        "language": "python",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "requirements.txt",
+      "line_number": null
+    },
+    {
+      "id": "file:backend\\package.json",
+      "type": "file",
+      "name": "backend\\package.json",
+      "attributes": {
+        "language": "npm",
+        "symbols": 42,
+        "deps_count": 0
+      },
+      "file_path": "backend\\package.json",
+      "line_number": null
+    },
+    {
+      "id": "file:backend\\product_service.js",
+      "type": "file",
+      "name": "backend\\product_service.js",
+      "attributes": {
+        "language": "javascript",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "backend\\product_service.js",
+      "line_number": null
+    },
+    {
+      "id": "file:backend\\user_service.py",
+      "type": "file",
+      "name": "backend\\user_service.py",
+      "attributes": {
+        "language": "python",
+        "symbols": 36,
+        "deps_count": 8
+      },
+      "file_path": "backend\\user_service.py",
+      "line_number": null
+    },
+    {
+      "id": "file:docs\\api.md",
+      "type": "file",
+      "name": "docs\\api.md",
+      "attributes": {
+        "language": "markdown",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "docs\\api.md",
+      "line_number": null
+    },
+    {
+      "id": "file:docs\\deployment.md",
+      "type": "file",
+      "name": "docs\\deployment.md",
+      "attributes": {
+        "language": "markdown",
+        "symbols": 0,
+        "deps_count": 0
+      },
+      "file_path": "docs\\deployment.md",
+      "line_number": null
+    },
+    {
+      "id": "file:k8s\\deployment.yaml",
+      "type": "file",
+      "name": "k8s\\deployment.yaml",
+      "attributes": {
+        "language": "yaml",
+        "symbols": 203,
+        "deps_count": 0
+      },
+      "file_path": "k8s\\deployment.yaml",
+      "line_number": null
+    },
+    {
+      "id": "file:k8s\\ingress.yaml",
+      "type": "file",
+      "name": "k8s\\ingress.yaml",
+      "attributes": {
+        "language": "yaml",
+        "symbols": 39,
+        "deps_count": 1
+      },
+      "file_path": "k8s\\ingress.yaml",
+      "line_number": null
+    },
+    {
+      "id": "file:k8s\\monitoring.yaml",
+      "type": "file",
+      "name": "k8s\\monitoring.yaml",
+      "attributes": {
+        "language": "yaml",
+        "symbols": 114,
+        "deps_count": 0
+      },
+      "file_path": "k8s\\monitoring.yaml",
+      "line_number": null
+    },
+    {
+      "id": "file:k8s\\namespace.yaml",
+      "type": "file",
+      "name": "k8s\\namespace.yaml",
+      "attributes": {
+        "language": "yaml",
+        "symbols": 9,
+        "deps_count": 0
+      },
+      "file_path": "k8s\\namespace.yaml",
+      "line_number": null
+    },
+    {
+      "id": "file:k8s\\services.yaml",
+      "type": "file",
+      "name": "k8s\\services.yaml",
+      "attributes": {
+        "language": "yaml",
+        "symbols": 117,
+        "deps_count": 0
+      },
+      "file_path": "k8s\\services.yaml",
+      "line_number": null
+    },
+    {
+      "id": "external:flask",
+      "type": "external",
+      "name": "flask",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:flask_sqlalchemy",
+      "type": "external",
+      "name": "flask_sqlalchemy",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:flask_jwt_extended",
+      "type": "external",
+      "name": "flask_jwt_extended",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:flask_cors",
+      "type": "external",
+      "name": "flask_cors",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:werkzeug.security",
+      "type": "external",
+      "name": "werkzeug.security",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:os",
+      "type": "external",
+      "name": "os",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:redis",
+      "type": "external",
+      "name": "redis",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:datetime",
+      "type": "external",
+      "name": "datetime",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "id": "external:",
+      "type": "external",
+      "name": "",
+      "attributes": {
+        "type": "external_dependency"
+      },
+      "file_path": null,
+      "line_number": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:flask",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:flask_sqlalchemy",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:flask_jwt_extended",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:flask_cors",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:werkzeug.security",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:os",
+      "relationship": "import",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:redis",
+      "relationship": "import",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import"
+      }
+    },
+    {
+      "source": "file:backend\\user_service.py",
+      "target": "external:datetime",
+      "relationship": "import_from",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "import_from"
+      }
+    },
+    {
+      "source": "file:k8s\\ingress.yaml",
+      "target": "external:",
+      "relationship": "yaml_reference",
+      "weight": 1.0,
+      "attributes": {
+        "dependency_type": "yaml_reference"
+      }
+    }
+  ],
+  "semantic_indexes": {
+    "nodes_by_type": {
+      "file": [
+        "file:docker-compose.yml",
+        "file:README.md",
+        "file:requirements.txt",
+        "file:backend\\package.json",
+        "file:backend\\product_service.js",
+        "file:backend\\user_service.py",
+        "file:docs\\api.md",
+        "file:docs\\deployment.md",
+        "file:k8s\\deployment.yaml",
+        "file:k8s\\ingress.yaml",
+        "file:k8s\\monitoring.yaml",
+        "file:k8s\\namespace.yaml",
+        "file:k8s\\services.yaml"
+      ],
+      "external": [
+        "external:flask",
+        "external:flask_sqlalchemy",
+        "external:flask_jwt_extended",
+        "external:flask_cors",
+        "external:werkzeug.security",
+        "external:os",
+        "external:redis",
+        "external:datetime",
+        "external:"
+      ]
+    },
+    "concept_patterns": {
+      "service": [
+        "file:backend\\product_service.js",
+        "file:backend\\user_service.py",
+        "file:k8s\\services.yaml"
+      ]
+    },
+    "framework_detection": {
+      "angular": [
+        "file:backend\\product_service.js",
+        "file:backend\\user_service.py",
+        "file:k8s\\services.yaml"
+      ],
+      "flask": [
+        "external:flask",
+        "external:flask_sqlalchemy",
+        "external:flask_jwt_extended",
+        "external:flask_cors"
+      ]
+    }
+  },
+  "adjacency": {
+    "file:backend\\user_service.py": [
+      "external:flask",
+      "external:flask_sqlalchemy",
+      "external:flask_jwt_extended",
+      "external:flask_cors",
+      "external:werkzeug.security",
+      "external:os",
+      "external:redis",
+      "external:datetime"
+    ],
+    "file:k8s\\ingress.yaml": [
+      "external:"
+    ]
+  },
+  "reverse_adjacency": {
+    "external:flask": [
+      "file:backend\\user_service.py"
+    ],
+    "external:flask_sqlalchemy": [
+      "file:backend\\user_service.py"
+    ],
+    "external:flask_jwt_extended": [
+      "file:backend\\user_service.py"
+    ],
+    "external:flask_cors": [
+      "file:backend\\user_service.py"
+    ],
+    "external:werkzeug.security": [
+      "file:backend\\user_service.py"
+    ],
+    "external:os": [
+      "file:backend\\user_service.py"
+    ],
+    "external:redis": [
+      "file:backend\\user_service.py"
+    ],
+    "external:datetime": [
+      "file:backend\\user_service.py"
+    ],
+    "external:": [
+      "file:k8s\\ingress.yaml"
+    ]
+  }
+}

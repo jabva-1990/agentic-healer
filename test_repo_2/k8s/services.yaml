@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: ecommerce
+  labels:
+    app: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - name: http
+    port: 3001
+    targetPort: 3001
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: product-service
+  ports:
+  - name: http
+    port: 3002
+    targetPort: 3002
+    # Missing protocol specification
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: order-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+    # Missing name and protocol
+  type: ClusterIP
+---
+# Database Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: ecommerce
+spec:
+  selector:
+    app: postgres
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP
+  type: ClusterIP
+  # Missing session affinity for stateful service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: ecommerce
+spec:
+  selector:
+    app: mongo
+  ports:
+  - name: mongo
+    port: 27017
+    targetPort: 27017
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: ecommerce
+spec:
+  selector:
+    app: redis
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    protocol: TCP
+  type: ClusterIP
+---
+# Load Balancer Service - EXPENSIVE AND INSECURE
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecommerce-lb
+  namespace: ecommerce
+spec:
+  selector:
+    app: nginx  # Nginx pod doesn't exist in deployment
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  type: LoadBalancer  # Will create expensive cloud LB
+  # Missing source IP preservation
+  # Missing session affinity
+---
+# Ingress Controller Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: ecommerce
+spec:
+  selector:
+    app: ingress-nginx  # Might not match actual ingress controller
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+  type: NodePort
+  # Missing nodePort specification - will be random

@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+"""
+Unit tests for functions that previously contained syntax errors.
+This file demonstrates a proper test organized structure using unittest.
+"""
+
+# Removed unused imports: os, sys
+import logging
+import unittest # Import unittest for test organization
+
+# Configure basic logging to ensure info messages are displayed
+# For unit tests, sometimes a different logging level or configuration is desired.
+# Here, we keep it as INFO to show the function's internal logs.
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# The functions to be tested. In a real project, these functions would typically
+# reside in a separate module and be imported here for testing.
+def hello_world():
+    """Simple function which might have had syntax errors previously."""
+    logging.info("Hello World from hello_world function") # Original logging retained
+    return "success"
+
+def calculate_sum(a, b):
+    """Function to calculate sum, which might have had syntax errors previously."""
+    return a + b
+
+class TestFunctionality(unittest.TestCase):
+    """
+    Test suite for the hello_world and calculate_sum functions.
+    Ensures they work as expected after syntax fixes.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up class-wide resources before any tests in this class run."""
+        logging.info("Starting TestFunctionality suite...")
+
+    def setUp(self):
+        """Set up resources before each test method runs."""
+        # This can be used for common setup for each test
+        pass
+
+    def test_hello_world_returns_expected_string(self):
+        """Verify that hello_world function returns 'success'."""
+        logging.info("Running test_hello_world_returns_expected_string")
+        expected_output = "success"
+        actual_output = hello_world()
+        self.assertEqual(actual_output, expected_output, "hello_world should return 'success'")
+
+    def test_calculate_sum_positive_numbers(self):
+        """Verify calculate_sum works correctly with positive integers."""
+        logging.info("Running test_calculate_sum_positive_numbers")
+        self.assertEqual(calculate_sum(5, 10), 15, "Sum of 5 and 10 should be 15")
+        self.assertEqual(calculate_sum(1, 1), 2, "Sum of 1 and 1 should be 2")
+
+    def test_calculate_sum_negative_numbers(self):
+        """Verify calculate_sum works correctly with negative integers."""
+        logging.info("Running test_calculate_sum_negative_numbers")
+        self.assertEqual(calculate_sum(-5, 10), 5, "Sum of -5 and 10 should be 5")
+        self.assertEqual(calculate_sum(-1, -1), -2, "Sum of -1 and -1 should be -2")
+
+    def test_calculate_sum_mixed_numbers(self):
+        """Verify calculate_sum works correctly with mixed positive and negative integers."""
+        logging.info("Running test_calculate_sum_mixed_numbers")
+        self.assertEqual(calculate_sum(-5, 5), 0, "Sum of -5 and 5 should be 0")
+        self.assertEqual(calculate_sum(0, 7), 7, "Sum of 0 and 7 should be 7")
+
+    def tearDown(self):
+        """Clean up resources after each test method runs."""
+        # This can be used for common cleanup after each test
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up class-wide resources after all tests in this class run."""
+        logging.info("Finished TestFunctionality suite.")
+
+
+if __name__ == "__main__":
+    # This block now runs all tests defined in TestFunctionality
+    unittest.main()

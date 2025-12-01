@@ -1,0 +1,75 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce-ingress
+  namespace: ecommerce
+  annotations:
+    # MISSING INGRESS CLASS
+    # kubernetes.io/ingress.class: nginx
+    
+    # Basic annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # MISSING SECURITY HEADERS
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   more_set_headers "X-Frame-Options: DENY";
+    #   more_set_headers "X-Content-Type-Options: nosniff";
+    
+    # MISSING RATE LIMITING
+    # nginx.ingress.kubernetes.io/rate-limit: "100"
+    
+    # MISSING CORS CONFIGURATION
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"  # Too permissive
+    
+spec:
+  tls:
+  - hosts:
+    - api.ecommerce.local
+    - www.ecommerce.local
+    secretName: ecommerce-tls  # Secret might not exist
+    
+  rules:
+  - host: api.ecommerce.local
+    http:
+      paths:
+      - path: /api/users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3001
+      - path: /api/products
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 3002
+      - path: /api/orders
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 3003
+              
+  # MISSING DEFAULT BACKEND
+  # defaultBackend:
+  #   service:
+  #     name: default-backend
+  #     port:
+  #       number: 80
+---
+# MISSING TLS SECRET
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: ecommerce-tls
+#   namespace: ecommerce
+# type: kubernetes.io/tls
+# data:
+#   tls.crt: <base64-encoded-certificate>
+#   tls.key: <base64-encoded-private-key>

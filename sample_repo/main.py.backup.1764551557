@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""
+Main application file with intentional issues for self-healing agent testing.
+"""
+
+import logging
+
+def process_data(data_list):
+    """Process a list of data items with logging for detailed tracking."""
+    logging.info(f"Starting to process {len(data_list)} items")
+    
+    results = []
+    for i, item in enumerate(data_list):
+        # Changed to DEBUG level as per-item processing details are typically debug information
+        logging.debug(f"Processing item {i}: {item}") 
+        
+        # Simulate some processing - removed blocking time.sleep for performance improvement
+        # time.sleep(0.1) 
+        processed_item = str(item).upper()
+        results.append(processed_item)
+        
+        # Changed to DEBUG level for detailed output within the loop
+        logging.debug(f"Processed: {processed_item}")
+    
+    logging.info("Processing complete!")
+    return results
+
+def main():
+    """Main function demonstrating data processing with logging."""
+    logging.info("Application starting...")
+    
+    # Sample data
+    sample_data = ["hello", "world", "python", "healing", "agent"]  # Comment removed as bracket is present and no longer an issue
+    
+    # Process data (this will be slow due to sleep, now improved)
+    results = process_data(sample_data)
+    
+    # Display results with more logs
+    logging.info("Final results:")
+    for result in results:
+        logging.info(f"- {result}")
+    
+    logging.info("Application finished successfully!")
+    return results
+
+if __name__ == "__main__":
+    # Configure logging at the start of the application's execution block
+    # By default, INFO messages and above will be shown. DEBUG messages will be suppressed.
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    main()

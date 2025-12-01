@@ -1,0 +1,94 @@
+"""
+Performance and logic error testing module.
+"""
+
+import time
+import random
+
+# CRITICAL BUG 1: Infinite recursion
+def recursive_disaster(n):
+    """Function that will cause stack overflow"""
+    if n > 0:
+        return recursive_disaster(n + 1)  # BUG: Adding instead of subtracting
+    return n
+
+# CRITICAL BUG 2: Memory leak with infinite loop
+def memory_bomb():
+    """Function that creates memory issues"""
+    data = []
+    while True:  # Infinite loop
+        data.append([random.random() for _ in range(1000)])
+        if len(data) > 10:  # This condition will never stop the growth
+            continue  # BUG: Should break, not continue
+
+# CRITICAL BUG 3: Division by zero
+def calculate_ratio(numerator, denominator):
+    """Calculate ratio without zero check"""
+    result = numerator / denominator  # No zero check
+    return result * 100
+
+# CRITICAL BUG 4: Index out of bounds
+def get_list_items(items, indices):
+    """Get items from list without bounds checking"""
+    results = []
+    for idx in indices:
+        results.append(items[idx])  # No bounds checking
+    return results
+
+# CRITICAL BUG 5: Type confusion
+def process_mixed_data(data):
+    """Process data assuming wrong types"""
+    total = 0
+    for item in data:
+        total += item.upper()  # Assumes all items are strings with upper() method
+    return total
+
+# CRITICAL BUG 6: File handling without proper error management
+def read_config_files(filenames):
+    """Read multiple files without error handling"""
+    configs = {}
+    for filename in filenames:
+        with open(filename, 'r') as f:  # No file existence check
+            configs[filename] = f.read().split('\n')
+    return configs
+
+# CRITICAL BUG 7: Network operation with blocking behavior
+def fetch_data_blocking(urls):
+    """Fetch data from URLs with blocking operations"""
+    results = []
+    for url in urls:
+        time.sleep(5)  # Simulates blocking network call
+        # CRITICAL BUG: Undefined function call
+        data = download_from_url(url)  # Function not defined
+        results.append(data)
+    return results
+
+# CRITICAL BUG 8: Main function with cascading failures
+def main():
+    """Main function that triggers multiple error scenarios"""
+    print("Starting performance and logic tests...")
+    
+    # This will cause stack overflow
+    result1 = recursive_disaster(10)
+    
+    # This will cause division by zero
+    ratio = calculate_ratio(100, 0)
+    
+    # This will cause index error
+    items = [1, 2, 3]
+    indices = [0, 1, 2, 5, 10]  # 5 and 10 are out of bounds
+    selected = get_list_items(items, indices)
+    
+    # This will cause type errors
+    mixed_data = [1, "hello", 3.14, None, {"key": "value"}]
+    processed = process_mixed_data(mixed_data)
+    
+    # This will cause file not found errors
+    files = ["config1.txt", "config2.json", "settings.ini"]
+    configs = read_config_files(files)
+    
+    print("All tests completed successfully!")  # Will never reach here
+    return True
+
+if __name__ == "__main__":
+    main()

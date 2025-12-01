@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # User Service - Python Flask
+  user-service:
+    build: ./backend/user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/userdb
+      - JWT_SECRET=super_secret_key_123
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - microservices
+    # Missing health check
+    
+  # Product Service - Node.js Express  
+  product-service:
+    build: ./backend/product-service
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/productdb
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    networks:
+      - microservices
+    # Incorrect volume syntax
+    volumes:
+      - ./backend/product-service/uploads;/app/uploads
+      
+  # Order Service - Java Spring Boot
+  order-service:
+    build: ./backend/order-service
+    ports:
+      - "3003:3003"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/orderdb
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+    depends_on:
+      - postgres
+    networks:
+      - microservices
+    # Missing restart policy
+      
+  # Notification Service
+  notification-service:
+    build: ./backend/notification-service
+    ports:
+      - "3004:3004"
+    environment:
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - EMAIL_USER=${EMAIL_USER}  # Missing default
+      - EMAIL_PASS=${EMAIL_PASS}  # Missing default
+    networks:
+      - microservices
+      
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=ecommerce
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices
+      
+  # MongoDB Database  
+  mongo:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - microservices
+    # Missing authentication
+      
+  # Redis Cache
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices
+    # Missing persistence configuration
+      
+  # Nginx Load Balancer - SYNTAX ERROR
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80
+    # Missing closing quote above
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - microservices
+
+volumes:
+  postgres_data:
+  mongo_data:
+  # Missing redis_data volume
+
+networks:
+  microservices:
+    driver: bridge
+    # Missing subnet configuration

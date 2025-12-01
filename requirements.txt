@@ -1,0 +1,28 @@
+# Dependency Analyzer Requirements
+# Core dependencies for the dependency analyzer system
+
+# No external dependencies required for basic functionality
+# All components use Python standard library only
+
+# Optional dependencies for enhanced functionality:
+
+# For better JavaScript/TypeScript parsing (future enhancement)
+# esprima>=4.0.1
+# typescript>=0.1.0
+
+# For improved file watching (alternative to polling)
+# watchdog>=2.1.0
+
+# For advanced AST analysis
+# astunparse>=1.6.0
+
+# For performance profiling and debugging
+# memory-profiler>=0.60.0
+# line-profiler>=3.5.0
+
+# For testing and development
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=22.0.0
+# flake8>=5.0.0
+# mypy>=0.991

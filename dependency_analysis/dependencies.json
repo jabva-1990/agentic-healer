@@ -1,0 +1,124 @@
+{
+  "repository": "test_repo_2",
+  "analyzed_at": "2025-11-30T21:50:58.130925",
+  "files": {
+    "docker-compose.yml": {
+      "language": "kubernetes",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "README.md": {
+      "language": "markdown",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "requirements.txt": {
+      "language": "python",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "backend\\package.json": {
+      "language": "npm",
+      "symbols": 42,
+      "deps_count": 0
+    },
+    "backend\\product_service.js": {
+      "language": "javascript",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "backend\\user_service.py": {
+      "language": "python",
+      "symbols": 36,
+      "deps_count": 8
+    },
+    "docs\\api.md": {
+      "language": "markdown",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "docs\\deployment.md": {
+      "language": "markdown",
+      "symbols": 0,
+      "deps_count": 0
+    },
+    "k8s\\deployment.yaml": {
+      "language": "yaml",
+      "symbols": 203,
+      "deps_count": 0
+    },
+    "k8s\\ingress.yaml": {
+      "language": "yaml",
+      "symbols": 39,
+      "deps_count": 1
+    },
+    "k8s\\monitoring.yaml": {
+      "language": "yaml",
+      "symbols": 114,
+      "deps_count": 0
+    },
+    "k8s\\namespace.yaml": {
+      "language": "yaml",
+      "symbols": 9,
+      "deps_count": 0
+    },
+    "k8s\\services.yaml": {
+      "language": "yaml",
+      "symbols": 117,
+      "deps_count": 0
+    }
+  },
+  "dependencies": {
+    "docker-compose.yml": [],
+    "README.md": [],
+    "requirements.txt": [],
+    "backend\\package.json": [],
+    "backend\\product_service.js": [],
+    "backend\\user_service.py": [
+      {
+        "target": "flask",
+        "type": "import_from"
+      },
+      {
+        "target": "flask_sqlalchemy",
+        "type": "import_from"
+      },
+      {
+        "target": "flask_jwt_extended",
+        "type": "import_from"
+      },
+      {
+        "target": "flask_cors",
+        "type": "import_from"
+      },
+      {
+        "target": "werkzeug.security",
+        "type": "import_from"
+      },
+      {
+        "target": "os",
+        "type": "import"
+      },
+      {
+        "target": "redis",
+        "type": "import"
+      },
+      {
+        "target": "datetime",
+        "type": "import_from"
+      }
+    ],
+    "docs\\api.md": [],
+    "docs\\deployment.md": [],
+    "k8s\\deployment.yaml": [],
+    "k8s\\ingress.yaml": [
+      {
+        "target": "",
+        "type": "yaml_reference"
+      }
+    ],
+    "k8s\\monitoring.yaml": [],
+    "k8s\\namespace.yaml": [],
+    "k8s\\services.yaml": []
+  }
+}

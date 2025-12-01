@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""
+Main application file with intentional issues for self-healing agent testing.
+"""
+
+import os
+import sys
+import time
+import logging
+
+def process_data(data_list):
+    """Process a list of data items with debugging prints."""
+    logging.info(f"Starting to process {len(data_list)} items")  #  Issue: missing closing parenthesis - syntax error!
+    
+    results = []
+    for i, item in enumerate(data_list):
+    logging.info(f"Processing item {i}: {item}")  # Issue: incorrect indentation - syntax error!
+        
+        # Simulate some processing
+        time.sleep(0.1)  # Issue: blocking sleep operation
+        processed_item = str(item).upper()
+        results.append(processed_item)
+        
+        # More debug output
+        logging.info(f"Processed: {processed_item}")  # Issue: excessive printing
+    
+    print("Processing complete!")  # Issue: print statement
+    return results
+
+def main():
+    """Main function with performance issues."""
+    print("Application starting...")  # Issue: print instead of logging
+    
+    # Sample data
+    sample_data = ["hello", "world", "python", "healing", "agent"]
+    
+    # Process data (this will be slow due to sleep)
+    results = process_data(sample_data)
+    
+    # Display results with more prints
+    print("Final results:")  # Issue: print statement
+    for result in results:
+        print(f"- {result}")  # Issue: print in loop
+    
+    print("Application finished successfully!")  # Issue: print statement
+    return results
+
+if __name__ == "__main__":
+    main()

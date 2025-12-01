@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""
+Simple test file with obvious syntax error for self-healing agent testing.
+"""
+
+import os
+import sys
+import logging
+
+def hello_world()  # Missing colon - syntax error!
+    """Simple function with syntax error."""
+    logging.info("Hello World")
+    return "success"  # Missing closing parenthesis above - syntax error!
+
+def main():
+    """Main function."""
+    result = hello_world()
+    logging.info(f"Result: {result}")
+
+if __name__ == "__main__":
+    main()

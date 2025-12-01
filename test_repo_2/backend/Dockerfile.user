@@ -1,0 +1,32 @@
+# USING VULNERABLE BASE IMAGE
+FROM python:3.9
+
+# RUNNING AS ROOT - SECURITY RISK
+# Should use: RUN adduser --disabled-password --gecos '' appuser
+
+# WORKING DIRECTORY
+WORKDIR /app
+
+# COPY EVERYTHING - INEFFICIENT
+COPY . /app
+# Should copy requirements first for better layer caching
+
+# INSTALL DEPENDENCIES - MISSING SECURITY UPDATES
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+# Should use: pip install --no-cache-dir --upgrade pip
+# Should run: apt-get update && apt-get upgrade -y
+
+# EXPOSE PORT
+EXPOSE 3001
+
+# MISSING HEALTH CHECK
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:3001/api/health || exit 1
+
+# MISSING USER SWITCH
+# USER appuser
+
+# INSECURE COMMAND - RUNS AS ROOT
+CMD ["python", "user_service.py"]
+# Should use: CMD ["gunicorn", "--bind", "0.0.0.0:3001", "user_service:app"]

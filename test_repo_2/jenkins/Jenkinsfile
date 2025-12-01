@@ -1,0 +1,280 @@
+pipeline {
+    agent any
+    
+    // MISSING PROPER AGENT SPECIFICATION
+    // agent {
+    //     docker {
+    //         image 'node:16-alpine'
+    //         args '-v /var/run/docker.sock:/var/run/docker.sock'
+    //     }
+    // }
+    
+    environment {
+        // HARDCODED SECRETS - SECURITY ISSUE
+        DOCKER_REGISTRY = 'your-registry.com'
+        DOCKER_USERNAME = 'admin'
+        DOCKER_PASSWORD = 'password123'  // Hardcoded password
+        KUBE_CONFIG = '/home/jenkins/.kube/config'  // Hardcoded path
+        SLACK_CHANNEL = '#deployments'
+        
+        // Missing proper credential management
+        // DOCKER_CREDENTIALS = credentials('docker-registry')
+        // KUBE_CREDENTIALS = credentials('kubernetes-config')
+    }
+    
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Target environment for deployment'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip running tests'
+        )
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: 'Docker image tag'
+        )
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // MISSING ERROR HANDLING
+                checkout scm
+                
+                script {
+                    // Get commit info
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Building commit: ${env.GIT_COMMIT_SHORT}"
+                }
+            }
+        }
+        
+        stage('Install Dependencies') {
+            parallel {
+                stage('Python Dependencies') {
+                    steps {
+                        dir('backend') {
+                            // MISSING VIRTUAL ENVIRONMENT
+                            sh 'pip install -r requirements.txt'
+                            // Should use: python -m venv venv && source venv/bin/activate
+                        }
+                    }
+                }
+                
+                stage('Node.js Dependencies') {
+                    steps {
+                        dir('backend') {
+                            // MISSING PACKAGE LOCK VALIDATION
+                            sh 'npm install'
+                            // Should use: npm ci for production builds
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Code Quality') {
+            parallel {
+                stage('Linting') {
+                    steps {
+                        script {
+                            // Python linting
+                            sh '''
+                                flake8 backend/ --max-line-length=88
+                                black --check backend/
+                            '''
+                            
+                            // JavaScript linting - MISSING
+                            // sh 'npm run lint'
+                        }
+                    }
+                }
+                
+                stage('Security Scan') {
+                    steps {
+                        // COMMENTED OUT - SECURITY RISK
+                        // sh 'safety check -r requirements.txt'
+                        // sh 'npm audit --audit-level moderate'
+                        
+                        echo 'Security scan skipped - TODO: implement'
+                    }
+                }
+            }
+        }
+        
+        stage('Tests') {
+            when {
+                not { params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        script {
+                            // Python tests
+                            sh '''
+                                cd backend
+                                pytest tests/ --cov=. --cov-report=xml
+                            '''
+                            
+                            // Node.js tests - MISSING
+                            // sh 'npm test'
+                        }
+                    }
+                    post {
+                        always {
+                            // MISSING TEST RESULT PUBLISHING
+                            // publishTestResults testResultsPattern: 'test-results.xml'
+                            echo 'Test results publishing skipped'
+                        }
+                    }
+                }
+                
+                stage('Integration Tests') {
+                    steps {
+                        // MISSING IMPLEMENTATION
+                        echo 'Integration tests not implemented'
+                        // sh 'docker-compose -f docker-compose.test.yml up --abort-on-container-exit'
+                    }
+                }
+            }
+        }
+        
+        stage('Build Images') {
+            steps {
+                script {
+                    // Build Docker images
+                    def services = ['user-service', 'product-service', 'order-service']
+                    
+                    services.each { service ->
+                        echo "Building ${service}..."
+                        
+                        // INSECURE IMAGE TAGGING
+                        sh """
+                            cd backend
+                            docker build -t ${env.DOCKER_REGISTRY}/${service}:${params.IMAGE_TAG} \
+                                -f ${service}/Dockerfile .
+                        """
+                        // Missing image vulnerability scanning
+                    }
+                }
+            }
+        }
+        
+        stage('Push Images') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
+            }
+            steps {
+                script {
+                    // INSECURE DOCKER LOGIN
+                    sh """
+                        echo ${env.DOCKER_PASSWORD} | docker login ${env.DOCKER_REGISTRY} \
+                            -u ${env.DOCKER_USERNAME} --password-stdin
+                    """
+                    
+                    def services = ['user-service', 'product-service', 'order-service']
+                    services.each { service ->
+                        sh "docker push ${env.DOCKER_REGISTRY}/${service}:${params.IMAGE_TAG}"
+                    }
+                    
+                    // Missing logout
+                    // sh 'docker logout ${env.DOCKER_REGISTRY}'
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // INSECURE KUBECTL CONFIGURATION
+                    sh """
+                        export KUBECONFIG=${env.KUBE_CONFIG}
+                        
+                        # Update image tags in manifests - DANGEROUS
+                        sed -i 's/image: .*-service:latest/image: ${env.DOCKER_REGISTRY}\/&:${params.IMAGE_TAG}/g' k8s/deployment.yaml
+                        
+                        # Apply manifests
+                        kubectl apply -f k8s/namespace.yaml
+                        kubectl apply -f k8s/
+                        
+                        # Wait for rollout - MISSING TIMEOUT
+                        kubectl rollout status deployment/user-service -n ecommerce
+                        kubectl rollout status deployment/product-service -n ecommerce
+                        kubectl rollout status deployment/order-service -n ecommerce
+                    """
+                }
+            }
+        }
+        
+        stage('Smoke Tests') {
+            steps {
+                script {
+                    // MISSING PROPER HEALTH CHECKS
+                    sleep(time: 30, unit: 'SECONDS')  // Arbitrary wait
+                    
+                    // Basic health check
+                    sh '''
+                        # Test service endpoints
+                        kubectl exec -n ecommerce deployment/user-service -- \
+                            curl -f http://localhost:3001/api/health || exit 1
+                            
+                        kubectl exec -n ecommerce deployment/product-service -- \
+                            curl -f http://localhost:3002/health || exit 1
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup
+            sh 'docker system prune -f'
+            
+            // MISSING PROPER CLEANUP
+            // cleanWs()
+        }
+        
+        success {
+            echo 'Pipeline succeeded!'
+            // MISSING NOTIFICATIONS
+            // slackSend channel: env.SLACK_CHANNEL, color: 'good', 
+            //     message: "✅ Deployment successful: ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+        }
+        
+        failure {
+            echo 'Pipeline failed!'
+            // MISSING FAILURE NOTIFICATIONS
+            // slackSend channel: env.SLACK_CHANNEL, color: 'danger',
+            //     message: "❌ Deployment failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+        }
+        
+        unstable {
+            echo 'Pipeline unstable - some tests failed'
+        }
+    }
+}
+
+// MISSING SHARED LIBRARY FUNCTIONS
+// def notifySlack(message, color) {
+//     slackSend channel: env.SLACK_CHANNEL, color: color, message: message
+// }
+
+// def buildDockerImage(serviceName, tag) {
+//     sh "docker build -t ${serviceName}:${tag} -f ${serviceName}/Dockerfile ."
+// }

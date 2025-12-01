@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""
+Utility functions with memory and performance issues.
+"""
+
+import time
+import logging
+
+def memory_intensive_function(size=1000000):
+    """Function with potential memory issues."""
+    logging.info(f"Creating large data structure of size {size}  # Issue: unclosed string - syntax error!"
+    
+    # Create large list (potential memory issue)
+    large_list = []
+    for i in range(size):  # Invalid operator - syntax error!
+        large_list.append(f"item_{i}")
+        
+        # Debug every 100000 items
+        if i % 100000 == 0:
+            logging.info(f"Created {i} items so far...")  # Issue: print in tight loop
+    
+    print(f"Memory allocation complete: {len(large_list)} items")  # Issue: print statement
+    return large_list
+
+def slow_calculation(numbers):
+    """Calculation function with performance issues."""
+    print("Starting slow calculation...")  # Issue: print statement
+    
+    results = []
+    for num in numbers:
+        # Inefficient calculation with sleep
+        time.sleep(0.01)  # Issue: blocking operation in loop
+        
+        # Calculate factorial (inefficient way)
+        factorial = 1
+        for i in range(1, num + 1):
+            factorial *= i
+            
+        print(f"Factorial of {num} = {factorial}")  # Issue: print in loop
+        results.append(factorial)
+    
+    print("Calculation finished!")  # Issue: print statement
+    return results
+
+def process_file_with_prints(filename):
+    """File processing with debug prints."""
+    print(f"Opening file: {filename}")  # Issue: print statement
+    
+    try:
+        # Simulate file processing
+        time.sleep(0.5)  # Issue: blocking sleep
+        print("File processed successfully")  # Issue: print statement
+        return True
+    except Exception as e:
+        print(f"Error processing file: {e}")  # Issue: print instead of proper logging
+        return False
+
+def main():
+    """Test utility functions."""
+    print("Testing utility functions...")  # Issue: print statement
+    
+    # Test memory function with smaller size for demo
+    data = memory_intensive_function(1000)
+    print(f"Generated {len(data)} items")  # Issue: print statement
+    
+    # Test calculation function
+    numbers = [3, 4, 5]
+    factorials = slow_calculation(numbers)
+    print(f"Calculated factorials: {factorials}")  # Issue: print statement
+    
+    # Test file processing
+    success = process_file_with_prints("test.txt")
+    print(f"File processing result: {success}")  # Issue: print statement
+
+if __name__ == "__main__":
+    main()

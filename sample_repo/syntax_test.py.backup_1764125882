@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+"""
+Simple test file with obvious syntax error for self-healing agent testing.
+"""
+
+import os
+import sys
+
+def hello_world():
+    """Simple function with syntax error."""
+    print("Hello World"
+    return "success"  # Missing closing parenthesis above - syntax error!
+
+def main():
+    """Main function."""
+    result = hello_world()
+    print(f"Result: {result}")
+
+if __name__ == "__main__":
+    main()
