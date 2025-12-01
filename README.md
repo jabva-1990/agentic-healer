@@ -1,28 +1,27 @@
-# Auto-Healing Repository Agent
+# Agentic Healer - Multi-Agent Repository Remediation System
 
-An intelligent, fully automated system that analyzes, indexes, builds knowledge graphs, and fixes issues in Python repositories using AI - all in a single command.
+An intelligent, multi-agent AI system that automatically detects, analyzes, and fixes code issues across repositories using strategic planning and iterative healing.
 
-## 🎯 **Complete Automation Pipeline**
+## 🎯 **Multi-Agent Architecture**
 
-**Repository Analysis** → **Dependency Indexing** → **Knowledge Graph** → **Issue Detection** → **AI-Powered Fixes** → **Validation** → **Results**
+**Planning Agent** → **Repository Analysis** → **Knowledge Graph** → **Self-Healing Agent** → **Verification Agent** → **Iterative Improvement**
 
 ## 🏗️ **How It Works**
 
-`auto_heal.py` automatically handles everything:
+`auto_heal.py` orchestrates multiple specialized AI agents:
 
-1. **Repository Analysis**: Scans and indexes all files using fast analysis
-2. **Dependency Mapping**: Builds complete dependency relationships 
-3. **Knowledge Graph**: Creates intelligent code relationship graphs
-4. **LLM Integration**: Uses Google Vertex AI (Gemini 2.5 Flash) for intelligent fixes
-5. **Issue Detection**: Identifies syntax, performance, and logic issues
-6. **Automated Fixing**: Applies fixes with backup protection
-7. **Final Validation**: Verifies all fixes work correctly
+1. **FastRepositoryAnalyzer**: File indexing, symbol extraction, dependency mapping
+2. **StrategicPlanningAgent**: Issue classification, repair task creation, dependency ordering  
+3. **SelfHealingAgent**: Context-aware code modification and fix application
+4. **CodeVerificationAgent**: Automated testing, validation, and feedback generation
+5. **KnowledgeGraph**: Relationship mapping and intelligent caching system
 
 ### 🔧 **Issue Types Handled:**
-- ✅ **Syntax Errors**: Missing brackets, colons, indentation
-- ✅ **Import Errors**: Missing dependencies, circular imports
-- ✅ **Performance Issues**: Print statements, inefficient code
-- ✅ **Logic Issues**: Basic runtime and validation problems
+- ✅ **Syntax Errors**: Missing brackets, colons, indentation, YAML syntax
+- ✅ **Security Issues**: Hardcoded credentials, configuration vulnerabilities
+- ✅ **Runtime Errors**: Missing imports, dependency conflicts
+- ✅ **Performance Issues**: Debug prints, inefficient patterns
+- ✅ **Configuration**: Docker, Kubernetes, CI/CD pipeline issues
 
 ## 🚀 **Single Command Usage**
 
@@ -240,4 +239,18 @@ The system will automatically:
 ✅ Validate all changes  
 ✅ Provide detailed results  
 
-**Everything happens automatically in a single command!** 🚀
+**Everything happens automatically with intelligent multi-agent coordination!** 🚀
+
+## 🚀 **Technical Specifications**
+
+### **CAPABILITIES:**
+- **Language Support**: Python (AST), JavaScript, YAML, JSON, Docker, Kubernetes
+- **Issue Categories**: Syntax, Runtime, Security, Performance, Configuration, Dependencies  
+- **Healing Strategies**: Pattern-based corrections, AI-assisted fixes, dependency resolution
+- **Validation**: Syntax checking, import validation, runtime testing, performance analysis
+
+### **INTEGRATION:**
+- CLI interface with configurable iterations and timeout
+- JSON-based repair plans and execution tracking  
+- Vertex AI integration for enhanced intelligence
+- Compatible with CI/CD pipelines and DevOps workflows
