@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Agentic Healer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            margin: 0;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .form-help {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+        .path-help {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .path-help code {
+            background: #e9ecef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #495057;
+        }
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        .status-section {
+            margin: 20px 0;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .status.idle {
+            background: #e2e3e5;
+            color: #495057;
+        }
+        .status.running {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.failed, .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .output-section {
+            margin-top: 20px;
+        }
+        .output {
+            background: #1e1e1e;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 14px;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 2px solid #333;
+            position: relative;
+        }
+        .output-controls {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        .output-line {
+            margin-bottom: 3px;
+            line-height: 1.4;
+        }
+        .planning-section {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        .issue-line {
+            color: #ff6b6b;
+            margin-left: 20px;
+        }
+        .fix-line {
+            color: #4ecdc4;
+            margin-left: 20px;
+        }
+        .success-line {
+            color: #95e1d3;
+            font-weight: bold;
+        }
+        .auto-refresh {
+            margin: 15px 0;
+            text-align: center;
+        }
+        .refresh-info {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Basic Agentic Healer</h1>
+            <p>Simple real-time code healing interface</p>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label for="repoPathType">Repository Selection:</label>
+                <select id="repoPathType" onchange="toggleCustomPath()">
+                    <option value="test_repo">🧪 test_repo - Demo repository (auto-created with sample issues)</option>
+                    <option value="sample_repo">📂 sample_repo - Existing repository in workspace</option>
+                    <option value=".">📁 . - Current directory (heal this workspace)</option>
+                    <option value="custom">🎯 Custom Path - Specify your own repository</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="customPathGroup" style="display: none;">
+                <label for="customPath">Custom Repository Path:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="customPath" placeholder="Enter full path to your repository (e.g., C:\Users\...\MyProject)" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary" onclick="insertExamplePaths()">📋 Examples</button>
+                </div>
+                <div class="path-help">
+                    <strong>How to define your repository path:</strong><br>
+                    <br>
+                    <strong>For your ASAT-Codelift project:</strong><br>
+                    <code>C:\Users\AD60060\OneDrive - Lumen\Desktop\ASAT-Codelift</code><br>
+                    <br>
+                    <strong>Other examples:</strong><br>
+                    • Full Windows path: <code>C:\Users\YourName\Documents\ProjectName</code><br>
+                    • Different drive: <code>D:\Development\MyApp</code><br>
+                    • Relative to current: <code>.\my-project</code><br>
+                    • Parent directory: <code>..\other-project</code><br>
+                    • Current directory: <code>.</code>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="issueDescription">Issue Description:</label>
+                <input type="text" id="issueDescription" value="Auto-healing session" placeholder="Describe the issue to fix (e.g., 'Performance issues', 'Syntax errors')">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="iterations">Max Iterations:</label>
+                    <input type="number" id="iterations" value="3" min="1" max="10" placeholder="1-10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="timeout">Timeout (seconds):</label>
+                    <input type="number" id="timeout" value="120" min="30" max="600" placeholder="30-600">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="serviceAccount">Service Account File:</label>
+                <input type="text" id="serviceAccount" value="prj-mm-genai-qa-001_sa-notebook-1c2123a13a2a.json" placeholder="Path to service account JSON file">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="verbose" checked> Verbose Output
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="uiMode" checked> UI Integration Mode
+                    </label>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button id="startBtn" class="btn" onclick="startHealing()">🚀 Start Healing</button>
+                <button class="btn btn-success" onclick="refreshStatus()">🔄 Refresh Status</button>
+                <button class="btn btn-secondary" onclick="resetForm()">↻ Reset to Defaults</button>
+            </div>
+        </div>
+
+        <div class="status-section">
+            <div id="status" class="status idle">
+                Status: <span id="statusText">Ready to start</span>
+            </div>
+        </div>
+
+        <div class="auto-refresh">
+            <label>
+                <input type="checkbox" id="autoRefresh" checked> Auto-refresh every 2 seconds
+            </label>
+            <div class="refresh-info">
+                <span id="lastUpdate">Click refresh to check status</span> | 
+                <span id="totalLines">0 lines</span>
+            </div>
+        </div>
+
+        <div class="output-section">
+            <h3>📊 Healing Process Output:</h3>
+            
+            <div class="output-controls">
+                <button class="btn btn-small btn-secondary" onclick="scrollToTop()">⬆️ Scroll to Top</button>
+                <button class="btn btn-small btn-secondary" onclick="scrollToBottom()">⬇️ Scroll to Bottom</button>
+                <button class="btn btn-small btn-secondary" onclick="clearOutputDisplay()">🗑️ Clear Display</button>
+                <label>
+                    <input type="checkbox" id="autoScroll" checked> Auto-scroll to latest
+                </label>
+            </div>
+            
+            <div id="output" class="output">
+                <div class="output-line">Click "Start Healing" to begin the process...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval;
+        let isRunning = false;
+
+        function toggleCustomPath() {
+            const repoPathType = document.getElementById('repoPathType').value;
+            const customPathGroup = document.getElementById('customPathGroup');
+            
+            if (repoPathType === 'custom') {
+                customPathGroup.style.display = 'block';
+            } else {
+                customPathGroup.style.display = 'none';
+            }
+        }
+
+        function getSelectedRepoPath() {
+            const repoPathType = document.getElementById('repoPathType').value;
+            
+            if (repoPathType === 'custom') {
+                return document.getElementById('customPath').value.trim();
+            } else {
+                return repoPathType;
+            }
+        }
+
+        function startHealing() {
+            const repoPath = getSelectedRepoPath();
+            const issueDescription = document.getElementById('issueDescription').value.trim();
+            
+            // Validate repository path
+            const pathValidation = validateRepositoryPath(repoPath);
+            if (!pathValidation.valid) {
+                alert('Repository Path Error: ' + pathValidation.message);
+                return;
+            }
+            
+            if (!issueDescription) {
+                alert('Please enter an issue description');
+                return;
+            }
+
+            if (isRunning) {
+                alert('Healing is already in progress');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('repo_path', repoPath);
+            formData.append('issue_description', issueDescription);
+            formData.append('iterations', document.getElementById('iterations').value);
+            formData.append('timeout', document.getElementById('timeout').value);
+            formData.append('service_account', document.getElementById('serviceAccount').value);
+            formData.append('verbose', document.getElementById('verbose').checked ? 'true' : 'false');
+            formData.append('ui_mode', document.getElementById('uiMode').checked ? 'true' : 'false');
+
+            fetch('/start', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'started') {
+                    updateStatus('running', 'Healing in progress...');
+                    clearOutput();
+                    startAutoRefresh();
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to start healing session: ' + error.message);
+            });
+        }
+
+        function insertExamplePaths() {
+            const examples = [
+                'C:\\Users\\AD60060\\OneDrive - Lumen\\Desktop\\ASAT-Codelift',
+                'C:\\Users\\AD60060\\Documents\\MyProject',
+                'D:\\Development\\WebApplication',
+                '.\\subfolder-project',
+                '..\\parent-project',
+                'C:\\Projects\\AI-Assistant',
+                '.\\sample_repo'
+            ];
+            
+            const customPathInput = document.getElementById('customPath');
+            const currentIndex = examples.findIndex(ex => ex === customPathInput.value);
+            const nextIndex = (currentIndex + 1) % examples.length;
+            customPathInput.value = examples[nextIndex];
+            
+            // Show tooltip
+            customPathInput.title = `Example ${nextIndex + 1}/${examples.length}: Click "Examples" button to cycle through more paths`;
+        }
+
+        function validateRepositoryPath(path) {
+            if (!path || path.trim() === '') {
+                return { valid: false, message: 'Repository path cannot be empty' };
+            }
+            
+            path = path.trim();
+            
+            // Check for Windows drive paths (C:\, D:\, etc.)
+            const windowsAbsolutePath = /^[A-Za-z]:\\.*$/;
+            const relativePath = /^\.{1,2}[\\\/].*$|^[^\\\/]+$/;
+            const currentDir = path === '.';
+            
+            if (windowsAbsolutePath.test(path)) {
+                // Windows absolute path is valid
+                return { valid: true, message: `Windows absolute path: ${path}` };
+            } else if (relativePath.test(path) || currentDir) {
+                // Relative path is valid
+                return { valid: true, message: `Relative path: ${path}` };
+            } else {
+                return { 
+                    valid: true, 
+                    message: `Custom path: ${path} (will be used as-is)` 
+                };
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('repoPathType').value = 'test_repo';
+            document.getElementById('customPath').value = '';
+            document.getElementById('issueDescription').value = 'Auto-healing session';
+            document.getElementById('iterations').value = '3';
+            document.getElementById('timeout').value = '120';
+            document.getElementById('serviceAccount').value = 'prj-mm-genai-qa-001_sa-notebook-1c2123a13a2a.json';
+            document.getElementById('verbose').checked = true;
+            document.getElementById('uiMode').checked = true;
+            toggleCustomPath(); // Hide custom path field
+        }
+
+        function refreshStatus() {
+            fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                updateStatus(data.status);
+                updateOutput(data.output || []);
+                updateInfo(data.total_lines || 0);
+                
+                // Stop auto-refresh if completed
+                if (data.status === 'completed' || data.status === 'failed' || data.status === 'error') {
+                    stopAutoRefresh();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateStatus('error', 'Failed to get status');
+            });
+        }
+
+        function updateStatus(status, customText) {
+            const statusDiv = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            const startBtn = document.getElementById('startBtn');
+
+            statusDiv.className = `status ${status}`;
+            
+            if (customText) {
+                statusText.textContent = customText;
+            } else {
+                switch(status) {
+                    case 'idle':
+                        statusText.textContent = 'Ready to start';
+                        break;
+                    case 'running':
+                        statusText.textContent = 'Healing in progress...';
+                        break;
+                    case 'completed':
+                        statusText.textContent = 'Healing completed successfully!';
+                        break;
+                    case 'failed':
+                        statusText.textContent = 'Healing failed';
+                        break;
+                    case 'error':
+                        statusText.textContent = 'Error occurred';
+                        break;
+                    default:
+                        statusText.textContent = status;
+                }
+            }
+
+            isRunning = (status === 'running');
+            startBtn.disabled = isRunning;
+            startBtn.textContent = isRunning ? '⏳ Healing in Progress...' : '🚀 Start Healing';
+        }
+
+        function updateOutput(lines) {
+            const outputDiv = document.getElementById('output');
+            
+            if (lines && lines.length > 0) {
+                outputDiv.innerHTML = '';
+                lines.forEach((line, index) => {
+                    const div = document.createElement('div');
+                    
+                    // Add line numbers for large outputs
+                    const lineNumber = String(index + 1).padStart(3, '0');
+                    
+                    // Add special styling for different types of output
+                    if (line.includes('PLANNING PHASE') || line.includes('IDENTIFIED ISSUES') || line.includes('PLANNED FIXES')) {
+                        div.className = 'output-line planning-section';
+                    } else if (line.includes('- ') && (line.includes('risk') || line.includes('Missing') || line.includes('out of bounds'))) {
+                        div.className = 'output-line issue-line';
+                    } else if (line.includes('1.') || line.includes('2.') || line.includes('3.') || line.includes('4.')) {
+                        div.className = 'output-line fix-line';
+                    } else if (line.includes('[OK]') || line.includes('completed successfully')) {
+                        div.className = 'output-line success-line';
+                    } else {
+                        div.className = 'output-line';
+                    }
+                    
+                    div.textContent = `${lineNumber}: ${line}`;
+                    div.id = `line-${index}`;
+                    outputDiv.appendChild(div);
+                });
+                
+                // Auto-scroll to bottom if enabled
+                if (document.getElementById('autoScroll').checked) {
+                    outputDiv.scrollTop = outputDiv.scrollHeight;
+                }
+            }
+        }
+
+        function scrollToTop() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.scrollTop = 0;
+        }
+
+        function scrollToBottom() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        function clearOutputDisplay() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '<div class="output-line">Output cleared. Click refresh to reload...</div>';
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '<div class="output-line">Starting healing process...</div>';
+        }
+
+        function updateInfo(totalLines) {
+            document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+            document.getElementById('totalLines').textContent = `${totalLines} lines total`;
+            
+            // Update the output controls with line count
+            const outputDiv = document.getElementById('output');
+            const currentLines = outputDiv.children.length;
+            if (currentLines !== totalLines) {
+                console.log(`Display shows ${currentLines} lines, but server has ${totalLines} lines`);
+            }
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            if (document.getElementById('autoRefresh').checked) {
+                autoRefreshInterval = setInterval(refreshStatus, 2000);
+            }
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        // Auto-refresh toggle
+        document.getElementById('autoRefresh').addEventListener('change', function() {
+            if (this.checked && isRunning) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        });
+
+        // Initial status check
+        refreshStatus();
+    </script>
+</body>
+</html>

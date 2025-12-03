@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Auto-Healing Repository Agent - Main Entry Point
 
@@ -15,6 +16,13 @@ Example:
 
 import os
 import sys
+
+# Fix Windows console encoding issues
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
 import json
 import time
 import argparse
@@ -79,8 +87,9 @@ class AutoHealingSession:
 class AutoHealingAgent:
     """Unified auto-healing agent that handles everything automatically."""
     
-    def __init__(self, service_account_path: str = "prj-mm-genai-qa-001_sa-notebook-1c2123a13a2a.json"):
+    def __init__(self, service_account_path: str = "prj-mm-genai-qa-001_sa-notebook-1c2123a13a2a.json", ui_mode: bool = False):
         self.service_account_path = service_account_path
+        self.ui_mode = ui_mode
         self.session: Optional[AutoHealingSession] = None
         
         # Intelligence components will be initialized as needed
@@ -89,6 +98,24 @@ class AutoHealingAgent:
         self.planning_agent: Optional[StrategicPlanningAgent] = None
         self.verification_agent: Optional[CodeVerificationAgent] = None
         self.current_plan = None
+    
+    def _emit_ui_update(self, update_type: str, data: Dict[str, Any], iteration_num: int = None) -> None:
+        """Emit UI update for real-time dashboard display."""
+        if not self.ui_mode:
+            return
+            
+        update_data = {
+            'type': update_type,
+            'data': data,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        if iteration_num is not None:
+            update_data['iteration_num'] = iteration_num
+            
+        # Emit as specially formatted JSON for UI server to parse
+        print(f"[UI_UPDATE]{json.dumps(update_data)}")
+        sys.stdout.flush()
         
     def auto_heal_repository(self, repo_path: str, issue_description: str, 
                            max_iterations: int = 3, timeout_seconds: int = 120) -> AutoHealingSession:
@@ -104,13 +131,13 @@ class AutoHealingAgent:
         )
         self.session = session
         
-        print("🚀 Auto-Healing Repository Agent")
+        print("[*] Auto-Healing Repository Agent")
         print("=" * 50)
-        print(f"📁 Repository: {session.repo_path}")
-        print(f"🎯 Issue: {session.issue_description}")
-        print(f"🔄 Max iterations: {session.max_iterations}")
-        print(f"⏰ Timeout: {session.timeout_seconds}s")
-        print(f"🕐 Started: {session.start_time.strftime('%H:%M:%S')}")
+        print(f"Repository: {session.repo_path}")
+        print(f"Issue: {session.issue_description}")
+        print(f"Max iterations: {session.max_iterations}")
+        print(f"Timeout: {session.timeout_seconds}s")
+        print(f"Started: {session.start_time.strftime('%H:%M:%S')}")
         print()
         
         try:
@@ -197,6 +224,14 @@ class AutoHealingAgent:
             
             # Get file count from analyzer
             self.session.files_analyzed = len(analyzer.analyzer.symbol_index.files)
+            
+            # Emit UI update with repository summary
+            repo_summary = {
+                'total_files': self.session.files_analyzed,
+                'files': list(analyzer.analyzer.symbol_index.files.keys()),
+                'dependencies': analyzer.analyzer.symbol_index.dependencies if hasattr(analyzer.analyzer.symbol_index, 'dependencies') else {}
+            }
+            self._emit_ui_update('repository_summary', repo_summary)
             
             print(f"✅ Repository analysis complete")
             print(f"   📁 Files analyzed: {self.session.files_analyzed}")
@@ -423,18 +458,53 @@ class AutoHealingAgent:
                 print(f"🔄 Iteration {iteration}/{self.session.max_iterations}")
                 print("-" * 50)
                 
+                # Emit iteration start
+                self._emit_ui_update('iteration_start', {
+                    'iteration': iteration,
+                    'max_iterations': self.session.max_iterations
+                }, iteration_num=iteration)
+                
                 # Step 1: Apply strategic healing
                 print("🛠️ Step 1: Strategic Healing Process")
                 
                 if hasattr(self, 'current_plan') and self.current_plan:
                     print(f"   📋 Using strategic plan with {len(self.current_plan.tasks)} tasks")
                     print(f"   📊 Plan success probability: {self.current_plan.success_probability:.1%}")
+                    
+                    # Emit planning update
+                    planning_data = {
+                        'strategy': f"Strategic approach with {len(self.current_plan.tasks)} prioritized tasks",
+                        'success_probability': self.current_plan.success_probability,
+                        'issues_found': [{'file': task.file_path, 'description': task.description, 'severity': task.priority} 
+                                       for task in self.current_plan.tasks[:10]]  # Limit to first 10 for UI
+                    }
+                    self._emit_ui_update('planning_update', planning_data, iteration_num=iteration)
+                    
                     fixes_applied = self._apply_strategic_fixes()
                 else:
                     print("   ⚠️ No strategic plan available, using direct approach")
+                    
+                    # Emit basic planning update
+                    self._emit_ui_update('planning_update', {
+                        'strategy': 'Direct healing approach - analyzing issues in real-time',
+                        'issues_found': []
+                    }, iteration_num=iteration)
+                    
                     fixes_applied = self._apply_direct_healing()
                 
                 total_fixes_applied += fixes_applied
+                
+                # Emit healing update
+                healing_data = {
+                    'approach': 'Strategic fix application',
+                    'fixes_applied_this_iteration': fixes_applied,
+                    'total_fixes_applied': total_fixes_applied,
+                    'files_modified': len(self.session.files_modified),
+                    'fixes_applied': [{'file': f, 'description': f'Applied healing fix to {f}', 'status': 'success'} 
+                                     for f in list(self.session.files_modified)[-fixes_applied:]]  # Recent fixes
+                }
+                self._emit_ui_update('healing_update', healing_data, iteration_num=iteration)
+                
                 print(f"\\n   ✅ Iteration {iteration} Results:")
                 print(f"      🔧 Fixes applied this iteration: {fixes_applied}")
                 print(f"      📊 Total fixes so far: {total_fixes_applied}")
@@ -445,6 +515,19 @@ class AutoHealingAgent:
                 print("🔍 Step 2: Code Verification and Testing")
                 verification_results = verification_agent._verify_all_files()
                 issues_found = verification_agent._analyze_verification_results(verification_results)
+                
+                # Emit verification update
+                verification_data = {
+                    'method': 'Comprehensive file and syntax verification',
+                    'issues_remaining': len(issues_found) if issues_found else 0,
+                    'results': [{'test': f'Verification of {issue.get("file", "unknown")}', 
+                               'passed': False, 'message': str(issue.get("issues", ["Verification issue"]))}
+                               for issue in (issues_found[:5] if issues_found else [])]  # Show first 5 issues
+                }
+                if not issues_found:
+                    verification_data['results'] = [{'test': 'All files verified', 'passed': True, 'message': 'No issues detected'}]
+                
+                self._emit_ui_update('verification_update', verification_data, iteration_num=iteration)
                 
                 # Step 3: Check if all issues are resolved
                 if not issues_found:
@@ -996,6 +1079,7 @@ Examples:
     parser.add_argument('--service-account', default='prj-mm-genai-qa-001_sa-notebook-1c2123a13a2a.json', 
                        help='Path to service account JSON file')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    parser.add_argument('--ui-mode', action='store_true', help='Enable UI integration mode')
     
     if len(sys.argv) == 1:
         parser.print_help()
@@ -1009,7 +1093,7 @@ Examples:
     
     try:
         # Create and run auto-healing agent
-        agent = AutoHealingAgent(args.service_account)
+        agent = AutoHealingAgent(args.service_account, ui_mode=args.ui_mode)
         
         session = agent.auto_heal_repository(
             repo_path=args.repository,
@@ -1027,10 +1111,10 @@ Examples:
             sys.exit(1)
             
     except KeyboardInterrupt:
-        print("\n⚠️ Auto-healing interrupted by user")
+        print("\\n[!] Auto-healing interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\\n[ERROR] Unexpected error: {e}")
         if args.verbose:
             import traceback
             traceback.print_exc()
